@@ -5,7 +5,7 @@ const autmiddleware = (req, res, next) => {
   const autheader = req.headers.authorization; //digunakan untuk mengambil token jwt dan menyimpannya ke variabel autheaderHeader
 
   //Jika autheader kosong atau autheader ada isinya tetapi tidak di mulai dengan kata "Bearer "
-  if (!autheader || autheader.startstWith("Bearer ")) {
+  if (!autheader || !autheader.startsWith("Bearer ")) {
     return res.status(401).json({ error: "Token Tidak Valid " });
   }
 
@@ -13,6 +13,7 @@ const autmiddleware = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, myjwtsecret); //digunakan untuk memverivikasi isi token (valid atau tidak)
+    req.user = decoded;
     next();
   } catch (err) {
     return res.status(401).json({ error: "Token Tidak Valid" });
