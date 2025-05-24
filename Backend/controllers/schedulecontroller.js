@@ -6,8 +6,8 @@ import {
 } from "../models/schedulemodel.js";
 
 export const tampil = (req, res) => {
-  const user = req.params.user_id;
-  getAllSchedules(user, (err, data) => {
+  const user = req.user;
+  getAllSchedules({ user_id: user.id }, (err, data) => {
     if (err) return res.status(404).json({ message: "Jadwal Tidak Ada" });
     res.json(data);
   });
