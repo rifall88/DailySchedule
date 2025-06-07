@@ -3,14 +3,14 @@ import Joi from "joi";
 export const validateCreateSchedule = (req, res, next) => {
   const schema = Joi.object({
     title: Joi.string().min(3).max(100).required().messages({
-      "string.base": "Judul harus berupa teks.",
+      "string.base": "Judul harus string.",
       "string.empty": "Judul tidak boleh kosong.",
       "string.min": "Judul harus memiliki setidaknya {#limit} karakter.",
       "string.max": "Judul tidak boleh melebihi {#limit} karakter.",
       "any.required": "Judul wajib diisi.",
     }),
     description: Joi.string().min(3).max(200).required().messages({
-      "string.base": "Deskripsi harus berupa teks.",
+      "string.base": "Deskripsi harus string.",
       "string.empty": "Deskripsi tidak boleh kosong.",
       "string.min": "Deskripsi harus memiliki setidaknya {#limit} karakter.",
       "string.max": "Deskripsi tidak boleh melebihi {#limit} karakter.",
@@ -26,7 +26,7 @@ export const validateCreateSchedule = (req, res, next) => {
       .pattern(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/)
       .required()
       .messages({
-        "string.base": "Waktu harus berupa teks.",
+        "string.base": "Waktu harus string",
         "string.empty": "Waktu tidak boleh kosong.",
         "string.pattern.base": "Format waktu tidak valid (gunakan HH:MM).",
         "any.required": "Waktu wajib diisi.",
@@ -40,14 +40,14 @@ export const validateCreateSchedule = (req, res, next) => {
 export const validateUpdateSchedule = (req, res, next) => {
   const schema = Joi.object({
     title: Joi.string().min(3).max(100).required().messages({
-      "string.base": "Deskripsi harus berupa teks.",
+      "string.base": "Deskripsi harus string.",
       "string.empty": "Deskripsi tidak boleh kosong.",
       "string.min": "Deskripsi harus memiliki setidaknya {#limit} karakter.",
       "string.max": "Deskripsi tidak boleh melebihi {#limit} karakter.",
       "any.required": "Deskripsi wajib diisi.",
     }),
     description: Joi.string().min(5).max(1000).required().messages({
-      "string.base": "Deskripsi harus berupa teks.",
+      "string.base": "Deskripsi harus string.",
       "string.empty": "Deskripsi tidak boleh kosong.",
       "string.min": "Deskripsi harus memiliki setidaknya {#limit} karakter.",
       "string.max": "Deskripsi tidak boleh melebihi {#limit} karakter.",
@@ -63,7 +63,7 @@ export const validateUpdateSchedule = (req, res, next) => {
       .pattern(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/)
       .required()
       .messages({
-        "string.base": "Waktu harus berupa teks.",
+        "string.base": "Waktu harus string.",
         "string.empty": "Waktu tidak boleh kosong.",
         "string.pattern.base": "Format waktu tidak valid (gunakan HH:MM).",
         "any.required": "Waktu wajib diisi.",
