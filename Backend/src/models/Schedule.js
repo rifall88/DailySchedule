@@ -9,35 +9,34 @@ class Schedule {
   }
 
   // Method untuk mendapatkan semua jadwal
-  static async findAll(userId = null) {
-    const where = userId ? { user_id: parseInt(userId) } : {};
+  static async findAll(userId) {
     return prisma.schedule.findMany({
-      where,
+      where: { user_id: userId },
       include: { User: true },
       orderBy: [{ date: "asc" }, { time: "asc" }],
     });
   }
 
   // Method untuk mendapatkan jadwal berdasarkan ID
-  static async findById(id) {
-    return prisma.schedule.findUnique({
-      where: { id: parseInt(id) },
+  static async findById(id, userId) {
+    return prisma.schedule.findFirst({
+      where: { id: parseInt(id), user_id: userId },
       include: { User: true },
     });
   }
 
   // Method untuk memperbarui jadwal
-  static async update(id, scheduleData) {
+  static async update(id, userId, scheduleData) {
     return prisma.schedule.update({
-      where: { id: parseInt(id) },
+      where: { id: parseInt(id), user_id: userId },
       data: scheduleData,
     });
   }
 
   // Method untuk menghapus jadwal
-  static async delete(id) {
+  static async delete(id, userId) {
     return prisma.schedule.delete({
-      where: { id: parseInt(id) },
+      where: { id: parseInt(id), user_id: userId },
     });
   }
 }

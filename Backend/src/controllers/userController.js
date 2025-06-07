@@ -9,11 +9,20 @@ export const register = async (req, res) => {
     const { name, email, password } = req.body;
     const hash = await bcrypt.hash(password, 10);
     const user = await User.create({ name, email, password: hash });
-    res.status(201).json({ message: "User registered", userId: user.id });
+    res.status(201).json({
+      status: true,
+      message: "Register Success",
+      data: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+      },
+    });
   } catch (error) {
     if (error.code === "P2002") {
-      return res.status(400).json({ message: "Email already registered" });
+      return res.status(400).json({ message: "Email Sudah Terdaftar" });
     }
+    //Pesan error terjadi ketika koneksi database mengalami error (laragon dalam keadaan off)
     console.error("Register error:", error);
     res.status(500).json({ message: "Internal server error" });
   }
@@ -23,18 +32,16 @@ export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
     const user = await User.findByEmail(email);
-    if (!user) return res.status(401).json({ message: "Invalid credentials" });
+    if (!user)
+      return res.status(401).json({ message: "Email atau Password salah" });
 
     if (!user.password) {
-      console.error("User has no password in DB:", user.email);
-      return res
-        .status(500)
-        .json({ message: "Internal server error: User password not set." });
+      console.error(`User ${user.email} tidak memiliki password di database`);
+      return res.status(500).json({ message: "Internal server error" });
     }
 
     const isValid = await bcrypt.compare(password, user.password);
-    if (!isValid)
-      return res.status(401).json({ message: "Password Salah" });
+    if (!isValid) return res.status(401).json({ message: "Password Salah" });
 
     const token = jwt.sign(
       { id: user.id, email: user.email },

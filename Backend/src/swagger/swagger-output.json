@@ -51,7 +51,7 @@
       },
       "RegisterRequest": {
         "type": "object",
-        "required": ["email", "password"],
+        "required": ["name", "email", "password"],
         "properties": {
           "name": { "type": "string", "example": "John Doe" },
           "email": {
@@ -62,7 +62,23 @@
           "password": {
             "type": "string",
             "format": "password",
-            "example": "Password123"
+            "minLength": 8,
+            "example": "strongpass123"
+          }
+        }
+      },
+      "RegisterResponse": {
+        "type": "object",
+        "properties": {
+          "status": { "type": "boolean", "example": true },
+          "message": { "type": "string", "example": "Register Success" },
+          "data": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "integer", "example": 1 },
+              "name": { "type": "string", "example": "John Doe" },
+              "email": { "type": "string", "example": "john.doe@example.com" }
+            }
           }
         }
       },
@@ -78,16 +94,27 @@
           "password": {
             "type": "string",
             "format": "password",
-            "example": "Password123"
+            "minLength": 8,
+            "example": "strongpass123"
           }
         }
       },
       "LoginResponse": {
         "type": "object",
         "properties": {
-          "token": {
-            "type": "string",
-            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+          "status": { "type": "boolean", "example": true },
+          "message": { "type": "string", "example": "Login Success" },
+          "data": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "integer", "example": 1 },
+              "name": { "type": "string", "example": "John Doe" },
+              "email": { "type": "string", "example": "john.doe@example.com" },
+              "access_token": {
+                "type": "string",
+                "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+              }
+            }
           }
         }
       },
@@ -115,6 +142,7 @@
           "time": {
             "type": "string",
             "pattern": "^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$",
+            "nullable": true,
             "example": "10:30"
           },
           "created_at": {
@@ -128,13 +156,14 @@
       },
       "ScheduleCreateRequest": {
         "type": "object",
-        "required": ["title", "date"],
+        "required": ["title", "description", "date", "time"],
         "properties": {
           "title": { "type": "string", "example": "Project Deadline" },
           "description": {
             "type": "string",
-            "nullable": true,
-            "example": "Submit final report"
+            "example": "Submit final report",
+            "minLength": 5,
+            "maxLength": 1000
           },
           "date": {
             "type": "string",
@@ -144,19 +173,20 @@
           "time": {
             "type": "string",
             "pattern": "^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$",
-            "nullable": true,
             "example": "17:00"
           }
         }
       },
       "ScheduleUpdateRequest": {
         "type": "object",
+        "required": ["title", "description", "date", "time"],
         "properties": {
           "title": { "type": "string", "example": "Updated Meeting Title" },
           "description": {
             "type": "string",
-            "nullable": true,
-            "example": "Revised discussion points"
+            "example": "Revised discussion points",
+            "minLength": 5,
+            "maxLength": 1000
           },
           "date": {
             "type": "string",
@@ -166,7 +196,6 @@
           "time": {
             "type": "string",
             "pattern": "^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$",
-            "nullable": true,
             "example": "11:00"
           }
         }
@@ -183,6 +212,19 @@
           "message": {
             "type": "string",
             "example": "Terjadi kesalahan server."
+          }
+        }
+      },
+      "ValidationErrorResponse": {
+        "type": "object",
+        "properties": {
+          "messages": {
+            "type": "array",
+            "items": { "type": "string" },
+            "example": [
+              "Nama pengguna wajib diisi.",
+              "Format email tidak valid."
+            ]
           }
         }
       }
@@ -216,7 +258,7 @@
         "description": "Permintaan buruk (input tidak valid)",
         "content": {
           "application/json": {
-            "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+            "schema": { "$ref": "#/components/schemas/ValidationErrorResponse" }
           }
         }
       }
@@ -242,29 +284,11 @@
             "description": "Pengguna berhasil didaftarkan",
             "content": {
               "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "example": "User registered"
-                    },
-                    "userId": { "type": "integer", "example": 1 }
-                  }
-                }
+                "schema": { "$ref": "#/components/schemas/RegisterResponse" }
               }
             }
           },
-          "400": {
-            "description": "Input tidak valid atau email sudah terdaftar",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
+          "400": { "$ref": "#/components/responses/BadRequestError" },
           "500": { "$ref": "#/components/responses/InternalServerError" }
         }
       }
@@ -288,19 +312,16 @@
             "description": "Login berhasil, mengembalikan token JWT",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/LoginResponse"
-                }
+                "schema": { "$ref": "#/components/schemas/LoginResponse" }
               }
             }
           },
+          "400": { "$ref": "#/components/responses/BadRequestError" },
           "401": {
             "description": "Kredensial tidak valid",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
               }
             }
           },
@@ -335,31 +356,25 @@
                       "type": "string",
                       "example": "Jadwal berhasil dibuat"
                     },
-                    "schedule": { "$ref": "#/components/schemas/Schedule" }
+                    "Jadwal": { "$ref": "#/components/schemas/Schedule" }
                   }
                 }
               }
             }
           },
-          "400": {
-            "description": "Input tidak valid",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
-              }
-            }
-          },
+          "400": { "$ref": "#/components/responses/BadRequestError" },
           "401": { "$ref": "#/components/responses/UnauthorizedError" },
           "500": { "$ref": "#/components/responses/InternalServerError" }
         }
       },
       "get": {
         "tags": ["Schedules"],
-        "summary": "Mendapatkan semua jadwal",
+        "summary": "Mendapatkan semua jadwal milik pengguna yang terautentikasi",
+        "description": "Mengembalikan daftar jadwal yang dibuat oleh pengguna yang sedang login.",
         "security": [{ "BearerAuth": [] }],
         "responses": {
           "200": {
-            "description": "Daftar semua jadwal",
+            "description": "Daftar jadwal milik pengguna yang terautentikasi",
             "content": {
               "application/json": {
                 "schema": {
@@ -379,7 +394,8 @@
     "/schedules/{id}": {
       "get": {
         "tags": ["Schedules"],
-        "summary": "Mendapatkan jadwal berdasarkan ID",
+        "summary": "Mendapatkan jadwal berdasarkan ID (milik pengguna yang terautentikasi)",
+        "description": "Mengembalikan detail jadwal tertentu jika ID jadwal cocok dengan jadwal milik pengguna yang sedang login.",
         "security": [{ "BearerAuth": [] }],
         "parameters": [
           {
@@ -400,7 +416,7 @@
             }
           },
           "404": {
-            "description": "Jadwal tidak ditemukan",
+            "description": "Jadwal tidak ditemukan atau bukan milik pengguna",
             "content": {
               "application/json": {
                 "schema": { "$ref": "#/components/schemas/ErrorResponse" }
@@ -413,7 +429,8 @@
       },
       "put": {
         "tags": ["Schedules"],
-        "summary": "Memperbarui jadwal berdasarkan ID",
+        "summary": "Memperbarui jadwal berdasarkan ID (milik pengguna yang terautentikasi)",
+        "description": "Memperbarui detail jadwal tertentu jika ID jadwal cocok dengan jadwal milik pengguna yang sedang login.",
         "security": [{ "BearerAuth": [] }],
         "parameters": [
           {
@@ -458,7 +475,8 @@
       },
       "delete": {
         "tags": ["Schedules"],
-        "summary": "Menghapus jadwal berdasarkan ID",
+        "summary": "Menghapus jadwal berdasarkan ID (milik pengguna yang terautentikasi)",
+        "description": "Menghapus jadwal tertentu jika ID jadwal cocok dengan jadwal milik pengguna yang sedang login.",
         "security": [{ "BearerAuth": [] }],
         "parameters": [
           {

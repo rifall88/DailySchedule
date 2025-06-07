@@ -20,7 +20,6 @@ export const authenticate = (req, res, next) => {
     req.user = decoded;
     next();
   } catch (error) {
-    console.error("Kesalahan autentikasi:", error.message);
     if (error.name === "JsonWebTokenError") {
       return res.status(401).json({ message: "Token tidak valid." });
     }

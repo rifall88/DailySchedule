@@ -12,30 +12,27 @@ export const createSchedule = async (req, res) => {
       user_id: userId,
       title,
       description,
-      date: date ? new Date(date) : undefined,
-      time: time ? new Date(`1970-01-01T${time}:00Z`) : undefined,
+      date: new Date(date),
+      time: new Date(`1970-01-01T${time}:00Z`),
     });
     res
       .status(201)
-      .json({ message: "Jadwal berhasil dibuat", schedule: newSchedule });
+      .json({ message: "Jadwal berhasil dibuat", Jadwal: newSchedule });
   } catch (error) {
-    console.error("Error creating schedule:", error);
-    res
-      .status(500)
-      .json({ message: "Gagal membuat jadwal", error: error.message });
+    console.error("Error creating schedules: ", error);
+    res.status(500).json({ message: "Gagal Membuat Jadwal" });
   }
 };
 
 // Dapatkan semua jadwal
 export const getAllSchedules = async (req, res) => {
   try {
-    const schedules = await Schedule.findAll();
+    const userId = req.user.id;
+    const schedules = await Schedule.findAll(userId);
     res.status(200).json(schedules);
   } catch (error) {
     console.error("Error getting schedules:", error);
-    res
-      .status(500)
-      .json({ message: "Gagal mengambil jadwal", error: error.message });
+    res.status(500).json({ message: "Gagal mengambil jadwal" });
   }
 };
 
@@ -43,16 +40,15 @@ export const getAllSchedules = async (req, res) => {
 export const getScheduleById = async (req, res) => {
   try {
     const { id } = req.params;
-    const schedule = await Schedule.findById(id);
+    const userId = req.user.id;
+    const schedule = await Schedule.findById(id, userId);
     if (!schedule) {
       return res.status(404).json({ message: "Jadwal tidak ditemukan" });
     }
     res.status(200).json(schedule);
   } catch (error) {
     console.error("Error getting schedule by ID:", error);
-    res
-      .status(500)
-      .json({ message: "Gagal mengambil jadwal", error: error.message });
+    res.status(500).json({ message: "Gagal mengambil jadwal" });
   }
 };
 
@@ -60,6 +56,7 @@ export const getScheduleById = async (req, res) => {
 export const updateSchedule = async (req, res) => {
   try {
     const { id } = req.params;
+    const userId = req.user.id;
     const { date, time, ...otherData } = req.body;
     const dataToUpdate = { ...otherData };
 
@@ -71,28 +68,23 @@ export const updateSchedule = async (req, res) => {
     }
 
     // Panggil model Schedule.update dengan data yang sudah dikonversi
-    const updatedSchedule = await Schedule.update(id, dataToUpdate);
+    const updatedSchedule = await Schedule.update(id, userId, dataToUpdate);
 
     if (!updatedSchedule) {
       return res.status(404).json({ message: "Jadwal tidak ditemukan" });
     }
-    res
-      .status(200)
-      .json({
-        message: "Jadwal berhasil diperbarui",
-        schedule: updatedSchedule,
-      });
+    res.status(200).json({
+      message: "Jadwal berhasil diperbarui",
+      schedule: updatedSchedule,
+    });
   } catch (error) {
     console.error("Error updating schedule:", error);
     // Lebih spesifik dalam menangani error Prisma
     if (error.code && error.code.startsWith("P")) {
       // Contoh: P2025 jika record tidak ditemukan
-      return res
-        .status(400)
-        .json({
-          message: "Kesalahan database saat memperbarui jadwal",
-          prismaError: error.message,
-        });
+      return res.status(400).json({
+        message: "Kesalahan database saat memperbarui jadwal",
+      });
     }
     res
       .status(500)
@@ -104,15 +96,14 @@ export const updateSchedule = async (req, res) => {
 export const deleteSchedule = async (req, res) => {
   try {
     const { id } = req.params;
-    const deletedSchedule = await Schedule.delete(id);
+    const userId = req.user.id;
+    const deletedSchedule = await Schedule.delete(id, userId);
     if (!deletedSchedule) {
       return res.status(404).json({ message: "Jadwal tidak ditemukan" });
     }
     res.status(200).json({ message: "Jadwal berhasil dihapus" });
   } catch (error) {
     console.error("Error deleting schedule:", error);
-    res
-      .status(500)
-      .json({ message: "Gagal menghapus jadwal", error: error.message });
+    res.status(500).json({ message: "Gagal Menghapus Jadwal" });
   }
 };

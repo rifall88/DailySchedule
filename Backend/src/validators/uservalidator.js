@@ -10,8 +10,16 @@ export const validateRegister = (req, res, next) => {
       "string.max": "Nama pengguna tidak boleh melebihi {#limit} karakter",
       "any.required": "Nama Pengguna Harus Di Isi",
     }),
-    email: Joi.string().email().required(),
-    password: Joi.string().min(6).required(),
+    email: Joi.string().email().required().messages({
+      "string.email": "Format email tidak valid.",
+      "string.empty": "Email tidak boleh kosong.",
+      "any.required": "Email wajib diisi.",
+    }),
+    password: Joi.string().min(8).required().messages({
+      "string.min": "Password harus memiliki setidaknya {#limit} karakter.",
+      "string.empty": "Password tidak boleh kosong.",
+      "any.required": "Password wajib diisi.",
+    }),
   });
 
   const { error } = schema.validate(req.body, { abortEarly: false });
@@ -28,8 +36,16 @@ export const validateRegister = (req, res, next) => {
 // Validator untuk data login user
 export const validateLogin = (req, res, next) => {
   const schema = Joi.object({
-    email: Joi.string().email().required(),
-    password: Joi.string().min(6).required(),
+    email: Joi.string().email().required().messages({
+      "string.email": "Format email tidak valid.",
+      "string.empty": "Email tidak boleh kosong.",
+      "any.required": "Email wajib diisi.",
+    }),
+    password: Joi.string().min(8).required().messages({
+      "string.min": "Password harus memiliki setidaknya {#limit} karakter.",
+      "string.empty": "Password tidak boleh kosong.",
+      "any.required": "Password wajib diisi.",
+    }),
   });
 
   const { error } = schema.validate(req.body);

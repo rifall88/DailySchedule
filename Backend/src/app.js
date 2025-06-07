@@ -29,7 +29,7 @@ app.get("/", (req, res) => {
 // Middleware penanganan error global (opsional tapi direkomendasikan)
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  res.status(500).send("Something broke!");
+  res.status(500).send("Penulisan Salah!");
 });
 
 const PORT = process.env.PORT || 3000;
