@@ -1,18 +1,16 @@
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 
-dotenv.config();
+dotenv.config(); //digunakan agar bisa mengakses JWT_SECRET
 
 export const authenticate = (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return res
-        .status(401)
-        .json({
-          message: "Akses ditolak: Token tidak ditemukan atau format salah.",
-        });
+      return res.status(401).json({
+        message: "Akses ditolak: Token tidak ditemukan atau format salah.",
+      });
     }
 
     const token = authHeader.split(" ")[1];

@@ -48,7 +48,7 @@ export const login = async (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: "1h" }
     );
-    res.json({
+    res.status(200).json({
       status: true,
       message: "Login Success",
       data: {
